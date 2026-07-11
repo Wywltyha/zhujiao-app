@@ -59,7 +59,7 @@ st.title("🤖 交互式助教沟通助手")
 with st.sidebar:
     st.header("⚙️ 基础设置")
     # 请把里面的 sk-... 换成你真实申请到的那一长串 Key
-    api_key = st.text_input("输入大模型 API Key", type="password", value="sk-364088e1abf74429ac1eba57faa1b4a4")
+    api_key = st.secrets["API_KEY"]
     st.caption("没有Key？可以去阿里云(百炼)或DeepSeek官网免费申请一个。")
     
     st.divider()
