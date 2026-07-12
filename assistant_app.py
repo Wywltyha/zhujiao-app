@@ -24,9 +24,6 @@ if "current_student" not in st.session_state:
 
 # ================= 2. 大模型交互逻辑 =================
 def call_llm(api_key, system_prompt, user_prompt):
-    # 这里默认使用 OpenAI 官方接口，如果你用国内模型（如通义千问/月之暗面/DeepSeek），
-    # 可以在这里加上 base_url="他们的接口地址"
-  def call_llm(api_key, system_prompt, user_prompt):
     # 配置 DeepSeek 的接口地址
     client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com") 
     try:
@@ -51,7 +48,6 @@ def update_student_profile(api_key, profile, new_feedback):
     system_prompt = "你是一个专业的线上教育助教督导。根据学生目前的档案和助教最新输入的沟通反馈，更新该学生的掌握情况，并提供给家长解决问题的方向，以及规划下一次沟通的话题。请以清晰的Markdown格式输出：1. 最新掌握情况更新 2. 给家长的解决问题方向 3. 下次沟通推荐话题。"
     user_prompt = f"【当前档案】\n掌握情况：{profile.get('mastery', '')}\n\n【本次沟通反馈】\n{new_feedback}\n\n请进行迭代更新并输出指导建议。"
     return call_llm(api_key, system_prompt, user_prompt)
-
 # ================= 3. 页面 UI 布局 =================
 st.set_page_config(page_title="助教智能沟通助手", layout="wide")
 st.title("🤖 交互式助教沟通助手")
