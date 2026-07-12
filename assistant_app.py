@@ -83,13 +83,13 @@ if st.session_state.current_student:
     
     st.subheader(f"📖 当前学生：【{student}】档案卡")
     
-   col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
     with col1:
         st.info("🧠 **当前掌握情况**")
-        st.write(profile["mastery"])  # 👈 就在这里！
+        st.write(profile.get("mastery") or "暂无记录，请先上传并解析文档。")
     with col2:
         st.success("🎯 **下次沟通话题/策略**")
-        st.write(profile["next_topics"])
+        st.write(profile.get("next_topics") or "暂无记录，请先上传并解析文档。")
         
     st.divider()
     
