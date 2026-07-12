@@ -101,10 +101,16 @@ if st.session_state.current_student:
     uploaded_file = st.file_uploader("上传沟通记录(仅支持TXT文本文件)", type=["txt"])
     if uploaded_file is not None and api_key:
         if st.button("解析文档并生成沟通策略"):
-            with st.spinner("正在分析文档..."):
-                doc_content = uploaded_file.getvalue().decode("utf-8")
+           with st.spinner("正在分析文档..."):
+                # 升级：双重解码保障（先试 utf-8，不行就用 gbk）
+                try:
+                    doc_content = uploaded_file.getvalue().decode("utf-8")
+                except UnicodeDecodeError:
+                    doc_content = uploaded_file.getvalue().decode("gbk")
+                    
                 profile["history"].append({"type": "document_upload", "content": doc_content})
                 
+                # 剩下的保持你原本的优秀逻辑
                 ai_result = analyze_initial_doc(api_key, doc_content)
                 try:
                     result_dict = json.loads(ai_result)
@@ -113,6 +119,7 @@ if st.session_state.current_student:
                     profile["next_topics"] = result_dict.get("next_topics", "")
                 except:
                     profile["mastery"] = ai_result
+                    
                 save_data(st.session_state.db)
                 st.success("文档解析完成！")
                 st.rerun()
