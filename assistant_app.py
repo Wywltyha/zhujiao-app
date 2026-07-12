@@ -92,7 +92,7 @@ with st.sidebar:
     # 3. 保留新建学生的输入框
     new_student = st.text_input("🆕 或新建学生档案：", placeholder="输入新学生姓名")
     
-    if st.button("确认选择 / 切换学生"):
+    if st.button1("确认选择 / 切换学生"):
         # 逻辑：优先看有没有输入新名字，没输入新名字就用下拉菜单选的名字
         final_student_name = new_student if new_student else selected_student
         
