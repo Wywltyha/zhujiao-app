@@ -24,29 +24,50 @@ if "current_student" not in st.session_state:
 
 # ================= 2. 大模型交互逻辑 =================
 def call_llm(api_key, system_prompt, user_prompt):
-    # 配置 DeepSeek 的接口地址
     client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com") 
     try:
         response = client.chat.completions.create(
-            model="deepseek-chat", # 使用 DeepSeek 模型
+            model="deepseek-chat",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            temperature=0.7
+            temperature=0.7 
         )
         return response.choices[0].message.content
     except Exception as e:
         return f"API请求出错，请检查API Key或网络: {e}"
 
 def analyze_initial_doc(api_key, doc_text):
-    system_prompt = "你是一个专业的线上教育助教督导。请分析学前沟通记录，总结学生的学习基础、性格特点，并给出第一次与家长沟通的策略和破冰话题。请以JSON格式输出，包含字段：'mastery' (掌握情况), 'strategy' (家长沟通策略), 'next_topics' (下次沟通话题)。"
+    # 【升级版提示词】强制要求详细展开，给出话术和步骤
+    system_prompt = """你是一位拥有10年经验的顶尖线上教育督导，精通家校沟通与学生心理学。请深度分析学前沟通记录，并给出极具实操性的沟通方案。
+    请必须以纯JSON格式输出（不要加 ```json 代码块等额外字符），包含以下三个字段，且内容要求非常详实：
+    
+    1. 'mastery' (掌握情况及性格画像)：深度剖析学生的学习基础、习惯痛点、厌学原因以及核心性格特征。
+    2. 'strategy' (家长沟通策略)：提供超详细的解决方案，必须包含：
+       - 核心沟通目标（本次沟通要解决的首要问题）
+       - 分步骤的沟通框架（第一步聊什么，第二步聊什么，如何引导）
+       - 具体话术示范（例如：针对该学生的特殊情况，助教第一句话具体该怎么发微信或打电话）
+    3. 'next_topics' (下次沟通话题)：给出2-3个具体的破冰或跟进话题，并说明为什么用这个话题能吸引学生或家长。"""
+    
     user_prompt = f"学前沟通记录如下：\n{doc_text}\n请分析并输出。"
     return call_llm(api_key, system_prompt, user_prompt)
 
 def update_student_profile(api_key, profile, new_feedback):
-    system_prompt = "你是一个专业的线上教育助教督导。根据学生目前的档案和助教最新输入的沟通反馈，更新该学生的掌握情况，并提供给家长解决问题的方向，以及规划下一次沟通的话题。请以清晰的Markdown格式输出：1. 最新掌握情况更新 2. 给家长的解决问题方向 3. 下次沟通推荐话题。"
-    user_prompt = f"【当前档案】\n掌握情况：{profile.get('mastery', '')}\n\n【本次沟通反馈】\n{new_feedback}\n\n请进行迭代更新并输出指导建议。"
+    # 【升级版提示词】强制要求复盘并给出针对性极强的下一步建议
+    system_prompt = """你是一位拥有10年经验的顶尖线上教育督导。请根据学生目前的档案和助教刚刚提交的最新沟通反馈，进行深度复盘，并制定下一步行动计划。
+    请以清晰的 Markdown 格式输出，内容要求丰富且具有极强的指导性：
+    
+    ### 1. 📊 学生状态刷新
+    综合旧档案与新反馈，分析学生目前的心态变化和学习进展。
+    
+    ### 2. 💡 给家长的实操解决方案
+    不要讲空话，给出具体的指导建议。例如：如何化解学生借口、如何建立奖惩机制、家长在家里具体应该配合做哪三件事。
+    
+    ### 3. 🎯 助教下一步跟进剧本
+    为助教规划下一次的沟通策略，包含明确的跟进时间点建议，以及一段可以直接复制使用的沟通话术示范。"""
+    
+    user_prompt = f"【当前档案】\n掌握情况：{profile.get('mastery', '')}\n\n【本次沟通反馈】\n{new_feedback}\n\n请进行迭代更新并输出详实的指导建议。"
     return call_llm(api_key, system_prompt, user_prompt)
 # ================= 3. 页面 UI 布局 =================
 st.set_page_config(page_title="助教智能沟通助手", layout="wide")
