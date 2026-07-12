@@ -80,8 +80,38 @@ with st.sidebar:
     st.caption("没有Key？可以去阿里云(百炼)或DeepSeek官网免费申请一个。")
     
     st.divider()
-    st.header("🧑‍🎓 学生管理")
-    student_name = st.text_input("请输入学生姓名：", placeholder="例如：李小明")
+   st.header("🧑‍🎓 学生管理")
+    
+    # 1. 自动读取后台数据库里已经存了哪些学生
+    existing_students = list(st.session_state.db.keys())
+    
+    # 2. 增加一个下拉菜单，展示已有档案
+    selected_student = st.selectbox("📂 调取已有档案：", ["(请选择...)"] + existing_students)
+    
+    # 3. 保留新建学生的输入框
+    new_student = st.text_input("🆕 或新建学生档案：", placeholder="输入新学生姓名")
+    
+    if st.button("确认选择 / 切换学生"):
+        # 逻辑：优先看有没有输入新名字，没输入新名字就用下拉菜单选的名字
+        final_student_name = new_student if new_student else selected_student
+        
+        if final_student_name and final_student_name != "(请选择...)":
+            st.session_state.current_student = final_student_name
+            
+            # 检查是不是全新的人
+            if final_student_name not in st.session_state.db:
+                st.session_state.db[final_student_name] = {
+                    "mastery": "暂无记录",
+                    "strategy": "暂无记录",
+                    "next_topics": "暂无记录",
+                    "history": []
+                }
+                save_data(st.session_state.db)
+                st.success(f"✨ 已为您新建档案：{final_student_name}")
+            else:
+                st.success(f"📚 已成功提取【{final_student_name}】的历史档案！")
+        else:
+            st.warning("请先输入或选择一个学生姓名！")
     
     if st.button("确认选择 / 切换学生"):
         if student_name:
