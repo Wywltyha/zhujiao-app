@@ -80,7 +80,8 @@ with st.sidebar:
     st.caption("没有Key？可以去阿里云(百炼)或DeepSeek官网免费申请一个。")
     
     st.divider()
-   st.header("🧑‍🎓 学生管理")
+    
+    st.header("🧑‍🎓 学生管理")
     
     # 1. 自动读取后台数据库里已经存了哪些学生
     existing_students = list(st.session_state.db.keys())
